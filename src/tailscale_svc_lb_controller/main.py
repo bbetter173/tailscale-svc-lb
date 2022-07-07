@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-import json
 import kopf
 import logging
 import kubernetes
@@ -18,7 +17,7 @@ RESOURCE_PREFIX = "ts-"
 
 TAILSCALE_RUNTIME_IMAGE = os.getenv("TAILSCALE_RUNTIME_IMAGE")
 TAILSCALE_RUNTIME_IMAGE_PULL_POLICY = os.getenv("TAILSCALE_RUNTIME_IMAGE_PULL_POLICY")
-TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_JSON = os.getenv("TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS")
+TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS = os.getenv("TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS")
 
 LEADER_ELECTOR_IMAGE = os.getenv("LEADER_ELECTOR_IMAGE")
 LEADER_ELECTOR_IMAGE_PULL_POLICY = os.getenv("LEADER_ELECTOR_IMAGE_PULL_POLICY")
@@ -75,15 +74,16 @@ def get_hostname(svc_name, svc_namespace):
 
     return ""
 
-def get_image_pull_secrets(image_pull_secrets_json):
+def get_image_pull_secrets():
     """
     Generates the imagePullSecrets to use, based on the JSON string passed in.
     """
-    if image_pull_secrets_json != "":
+    if TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS != "":
+        logging.info(f"Image Pull Secrets: {TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS}")
         retval = []
-        secrets = json.loads(image_pull_secrets_json)
+        secrets = TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS.split(";")
         for secret in secrets:
-            retval += kubernetes.client.V1LocalObjectReference(name=secret['name'])
+            retval += kubernetes.client.V1LocalObjectReference(name=secret)
         return retval
     return []
 
@@ -205,7 +205,7 @@ def create_svc_lb(spec, body, name, logger, **kwargs):
                         service_account=RESOURCE_PREFIX + name,
                         service_account_name=RESOURCE_PREFIX + name,
                         node_selector={NODE_SELECTOR_LABEL: "true"},
-                        image_pull_secrets=get_image_pull_secrets(TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_JSON),
+                        image_pull_secrets=get_image_pull_secrets(TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_YAML),
                         containers=[
                             kubernetes.client.V1Container(
                                 name="tailscale-svc-lb-runtime",
