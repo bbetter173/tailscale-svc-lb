@@ -52,8 +52,7 @@ spec:
             - name: TAILSCALE_RUNTIME_IMAGE_PULL_POLICY
               value: "{{ .Values.runtime.image.pullPolicy }}"
             - name: TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_JSON
-              value: |-
-                {{- .Values.runtime.imagePullSecrets | toYaml | nindent 16 }}
+              value: artifactory
             - name: LEADER_ELECTOR_IMAGE
               value: "{{ .Values.leaderElector.image.repository }}:{{ .Values.leaderElector.image.tag }}"
             - name: LEADER_ELECTOR_IMAGE_PULL_POLICY

@@ -67,7 +67,7 @@ controller:
 
 runtime:
   image:
-    repository: af.switchmedia.asia/mediahq/tailscale-svc-lb-controller
+    repository: af.switchmedia.asia/mediahq/tailscale-svc-lb
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
