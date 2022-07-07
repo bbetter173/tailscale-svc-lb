@@ -205,7 +205,23 @@ def create_svc_lb(spec, body, name, logger, **kwargs):
                         service_account=RESOURCE_PREFIX + name,
                         service_account_name=RESOURCE_PREFIX + name,
                         node_selector={NODE_SELECTOR_LABEL: "true"},
-                        image_pull_secrets=get_image_pull_secrets(TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_YAML),
+                        image_pull_secrets=get_image_pull_secrets(),
+                        init_containers=[
+                            kubernetes.client.V1Container(
+                                name="tailscale-svc-lb-init",
+                                image=TAILSCALE_RUNTIME_IMAGE,
+                                image_pull_policy="Always",  # TODO: Return to IfNotPresent
+                                command=['sh', '-c', 'sysctl -w net.ipv4.ip_forward=1'],
+                                security_context=kubernetes.client.V1SecurityContext(
+                                    privileged=True,
+                                    capabilities=kubernetes.client.V1Capabilities(
+                                        add=[
+                                            "NET_ADMIN"
+                                        ]
+                                    )
+                                )
+                            ),
+                        ],
                         containers=[
                             kubernetes.client.V1Container(
                                 name="tailscale-svc-lb-runtime",
