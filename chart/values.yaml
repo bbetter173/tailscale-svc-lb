@@ -8,13 +8,13 @@ fullnameOverride: ""
 # (Optional) Auth Key to use when starting tailscale. Automates the login process.
 tailscaleAuthKey: ""
 
-# If true, the tailscale hostname will be generated in the format of:
-#   $SVC_NAME.$SVC_NAMESPACE
-useServiceNameAsHostname: false
+hostname:
+  # Manually override the hostname to this literal value. This overrides all other hostname options.
+  override: ""
 
-# An optional domain segment to use when generating the service hostname, in the format of:
-#   $SVC_NAME.$SVC_NAMESPACE.$SVC_DOMAIN
-serviceDomain: ""
+  # Generate a hostname based on the service name, namespace, and an optional domain
+  generateFromServiceName: false
+  serviceDomain: ""
 
 controller:
   image:
@@ -67,13 +67,17 @@ controller:
 
 runtime:
   image:
-    repository: clrxbl/tailscale-svc-lb-runtime
+    repository: af.switchmedia.asia/mediahq/tailscale-svc-lb-controller
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
+
+  imagePullSecrets: []
 
 leaderElector:
   image:
     repository: gcr.io/google_containers/leader-elector
     pullPolicy: IfNotPresent
     tag: "0.5"
+
+  imagePullSecrets: []

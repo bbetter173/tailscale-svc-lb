@@ -27,16 +27,6 @@ spec:
       serviceAccountName: {{ include "tailscale-svc-lb.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.controller.podSecurityContext | nindent 8 }}
-      initContainers:
-        - name: {{ .Chart.Name }}-sysctl
-          securityContext:
-            {{- toYaml .Values.controller.securityContext | nindent 12 }}
-          image: "{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
-          command:
-            - sh
-            - -c
-            - sysctl -w net.ipv4.ip_forward=1
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
@@ -59,12 +49,21 @@ spec:
               value: "{{ .Release.Namespace }}"
             - name: TAILSCALE_RUNTIME_IMAGE
               value: "{{ .Values.runtime.image.repository }}:{{ .Values.runtime.image.tag | default .Chart.AppVersion }}"
+            - name: TAILSCALE_RUNTIME_IMAGE_PULL_POLICY
+              value: "{{ .Values.runtime.image.pullPolicy }}"
+            - name: TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_JSON
+              value: |-
+                {{- .Values.runtime.imagePullSecrets | toYaml | nindent 16 }}
             - name: LEADER_ELECTOR_IMAGE
               value: "{{ .Values.leaderElector.image.repository }}:{{ .Values.leaderElector.image.tag }}"
-            - name: TAILSCALE_USE_SERVICENAME
-              value: "{{ .Values.useServiceNameAsHostname }}"
+            - name: LEADER_ELECTOR_IMAGE_PULL_POLICY
+              value: "{{ .Values.leaderElector.image.pullPolicy }}"
+            - name: TAILSCALE_HOSTNAME 
+              value: "{{ .Values.hostname.override }}"
+            - name: TAILSCALE_USE_SERVICE_NAME
+              value: "{{ .Values.hostname.generateFromServiceName }}"
             - name: TAILSCALE_SERVICE_DOMAIN
-              value: "{{ .Values.serviceDomain }}"
+              value: "{{ .Values.hostname.serviceDomain }}"
           resources:
             {{- toYaml .Values.controller.resources | nindent 12 }}
       {{- with .Values.controller.nodeSelector }}

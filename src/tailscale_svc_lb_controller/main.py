@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import json
 import kopf
 import logging
 import kubernetes
@@ -16,8 +17,14 @@ SERVICE_NAMESPACE_LABEL = CONTROLLER_PREFIX + "/svc-namespace"
 RESOURCE_PREFIX = "ts-"
 
 TAILSCALE_RUNTIME_IMAGE = os.getenv("TAILSCALE_RUNTIME_IMAGE")
+TAILSCALE_RUNTIME_IMAGE_PULL_POLICY = os.getenv("TAILSCALE_RUNTIME_IMAGE_PULL_POLICY")
+TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_JSON = os.getenv("TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS")
+
 LEADER_ELECTOR_IMAGE = os.getenv("LEADER_ELECTOR_IMAGE")
-TAILSCALE_USE_SERVICENAME = os.getenv("TAILSCALE_USE_SERVICENAME")
+LEADER_ELECTOR_IMAGE_PULL_POLICY = os.getenv("LEADER_ELECTOR_IMAGE_PULL_POLICY")
+
+TAILSCALE_HOSTNAME = os.getenv("TAILSCALE_HOSTNAME")
+TAILSCALE_USE_SERVICE_NAME = os.getenv("TAILSCALE_USE_SERVICE_NAME")
 TAILSCALE_SERVICE_DOMAIN = os.getenv("TAILSCALE_SERVICE_DOMAIN")
 
 def get_common_labels(service, namespace):
@@ -57,16 +64,28 @@ def get_hostname(svc_name, svc_namespace):
     """
     Generates the hostname to use for the tailscale client.
     """
-    if TAILSCALE_HOSTNAME !== "":
+    if TAILSCALE_HOSTNAME != "":
         return TAILSCALE_HOSTNAME
 
-    if TAILSCALE_USE_SERVICENAME === "true":
-        if TAILSCALE_DOMAIN !== "":
-            return f'{svc_name}.{svc_namespace}.{TAILSCALE_DOMAIN}'
+    if TAILSCALE_USE_SERVICE_NAME == "true":
+        if TAILSCALE_SERVICE_DOMAIN != "":
+            return f'{svc_name}.{svc_namespace}.{TAILSCALE_SERVICE_DOMAIN}'
         else:
             return f'{svc_name}.{svc_namespace}'
 
     return ""
+
+def get_image_pull_secrets(image_pull_secrets_json):
+    """
+    Generates the imagePullSecrets to use, based on the JSON string passed in.
+    """
+    if image_pull_secrets_json != "":
+        retval = []
+        secrets = json.loads(image_pull_secrets_json)
+        for secret in secrets:
+            retval += kubernetes.client.V1LocalObjectReference(name=secret['name'])
+        return retval
+    return []
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
@@ -186,6 +205,7 @@ def create_svc_lb(spec, body, name, logger, **kwargs):
                         service_account=RESOURCE_PREFIX + name,
                         service_account_name=RESOURCE_PREFIX + name,
                         node_selector={NODE_SELECTOR_LABEL: "true"},
+                        image_pull_secrets=get_image_pull_secrets(TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS_JSON),
                         containers=[
                             kubernetes.client.V1Container(
                                 name="tailscale-svc-lb-runtime",
