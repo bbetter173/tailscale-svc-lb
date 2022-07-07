@@ -17,7 +17,8 @@ RESOURCE_PREFIX = "ts-"
 
 TAILSCALE_RUNTIME_IMAGE = os.getenv("TAILSCALE_RUNTIME_IMAGE")
 LEADER_ELECTOR_IMAGE = os.getenv("LEADER_ELECTOR_IMAGE")
-
+TAILSCALE_USE_SERVICENAME = os.getenv("TAILSCALE_USE_SERVICENAME")
+TAILSCALE_SERVICE_DOMAIN = os.getenv("TAILSCALE_SERVICE_DOMAIN")
 
 def get_common_labels(service, namespace):
     """
@@ -52,6 +53,20 @@ def update_service_status(namespace, service, ip):
     except Exception as e:
         logging.error(e)
 
+def get_hostname(svc_name, svc_namespace):
+    """
+    Generates the hostname to use for the tailscale client.
+    """
+    if TAILSCALE_HOSTNAME !== "":
+        return TAILSCALE_HOSTNAME
+
+    if TAILSCALE_USE_SERVICENAME === "true":
+        if TAILSCALE_DOMAIN !== "":
+            return f'{svc_name}.{svc_namespace}.{TAILSCALE_DOMAIN}'
+        else:
+            return f'{svc_name}.{svc_namespace}'
+
+    return ""
 
 @kopf.on.startup()
 def configure(settings: kopf.OperatorSettings, **_):
@@ -185,6 +200,9 @@ def create_svc_lb(spec, body, name, logger, **kwargs):
                                     ),
                                     kubernetes.client.V1EnvVar(
                                         name="SVC_NAMESPACE", value=service_namespace
+                                    ),
+                                    kubernetes.client.V1EnvVar(
+                                        name="TS_HOSTNAME", value=get_hostname(name, service_namespace)
                                     ),
                                     kubernetes.client.V1EnvVar(
                                         name="TS_AUTH_KEY", value_from=kubernetes.client.V1EnvVarSource(

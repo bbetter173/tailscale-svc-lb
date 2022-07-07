@@ -12,6 +12,7 @@ TS_DEST_IP="${TS_DEST_IP:-}"
 TS_EXTRA_ARGS="${TS_EXTRA_ARGS:-}"
 TS_ACCEPT_DNS="${TS_ACCEPT_DNS:-false}"
 TS_KUBE_SECRET="${TS_KUBE_SECRET:-tailscale}"
+TS_HOSTNAME="${TS_HOSTNAME:-}"
 
 set -e
 
@@ -52,6 +53,10 @@ if [[ ! -z "${TS_AUTH_KEY}" ]]; then
 fi
 if [[ ! -z "${TS_EXTRA_ARGS}" ]]; then
   UP_ARGS="${UP_ARGS} ${TS_EXTRA_ARGS:-}"
+fi
+if [[ ! -z "${TS_HOSTNAME}" ]]; then
+  echo "Overriding system hostname using TS_HOSTNAME: ${TS_HOSTNAME}"
+  UP_ARGS="--hostname=${TS_HOSTNAME} ${UP_ARGS}"
 fi
 
 echo "Running tailscale up"

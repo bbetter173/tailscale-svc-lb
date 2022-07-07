@@ -61,6 +61,10 @@ spec:
               value: "{{ .Values.runtime.image.repository }}:{{ .Values.runtime.image.tag | default .Chart.AppVersion }}"
             - name: LEADER_ELECTOR_IMAGE
               value: "{{ .Values.leaderElector.image.repository }}:{{ .Values.leaderElector.image.tag }}"
+            - name: TAILSCALE_USE_SERVICENAME
+              value: "{{ .Values.useServiceNameAsHostname }}"
+            - name: TAILSCALE_SERVICE_DOMAIN
+              value: "{{ .Values.serviceDomain }}"
           resources:
             {{- toYaml .Values.controller.resources | nindent 12 }}
       {{- with .Values.controller.nodeSelector }}

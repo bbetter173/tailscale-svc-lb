@@ -8,6 +8,14 @@ fullnameOverride: ""
 # (Optional) Auth Key to use when starting tailscale. Automates the login process.
 tailscaleAuthKey: ""
 
+# If true, the tailscale hostname will be generated in the format of:
+#   $SVC_NAME.$SVC_NAMESPACE
+useServiceNameAsHostname: false
+
+# An optional domain segment to use when generating the service hostname, in the format of:
+#   $SVC_NAME.$SVC_NAMESPACE.$SVC_DOMAIN
+serviceDomain: ""
+
 controller:
   image:
     repository: clrxbl/tailscale-svc-lb-controller
