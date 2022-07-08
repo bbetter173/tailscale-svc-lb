@@ -13,17 +13,18 @@ hostname:
   override: ""
 
   # Generate a hostname based on the service name, namespace, and an optional domain
-  generateFromServiceName: false
-  serviceDomain: ""
+  generateFromServiceName: true
+  serviceDomain: "mediahq-demo"
 
 controller:
   image:
-    repository: clrxbl/tailscale-svc-lb-controller
-    pullPolicy: IfNotPresent
+    repository: af.switchmedia.asia/mediahq/tailscale-svc-lb-controller
+    pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
 
-  imagePullSecrets: []
+  imagePullSecrets:
+    - name: artifactory
 
   serviceAccount:
     # Specifies whether a service account should be created

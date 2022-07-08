@@ -83,7 +83,7 @@ def get_image_pull_secrets():
         retval = []
         secrets = TAILSCALE_RUNTIME_IMAGE_PULL_SECRETS.split(";")
         for secret in secrets:
-            retval += kubernetes.client.V1LocalObjectReference(name=secret)
+            retval.append(kubernetes.client.V1LocalObjectReference(name=secret))
         return retval
     return []
 
