@@ -14,9 +14,10 @@ TS_ACCEPT_DNS="${TS_ACCEPT_DNS:-false}"
 TS_KUBE_SECRET="${TS_KUBE_SECRET:-tailscale}"
 TS_HOSTNAME="${TS_HOSTNAME:-}"
 
+TSD_EXTRA_ARGS="${TSD_EXTRA_ARGS:-}"
 set -e
 
-TAILSCALED_ARGS="--state=kube:${TS_KUBE_SECRET} --socket=/tmp/tailscaled.sock"
+TAILSCALED_ARGS="--state=kube:${TS_KUBE_SECRET} --socket=/tmp/tailscaled.sock ${TSD_EXTRA_ARGS}"
 
 if [ $(cat /proc/sys/net/ipv4/ip_forward) != 1 ]; then
   echo "IPv4 forwarding (/proc/sys/net/ipv4/ip_forward) needs to be enabled, exiting..."
