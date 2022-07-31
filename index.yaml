@@ -1,0 +1,14 @@
+apiVersion: v1
+entries:
+  tailscale-svc-lb:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2022-07-31T09:14:37.12530056Z"
+    description: klipper-lb but Tailscale
+    digest: d2a84b451a5c81c89e5d14125b2bc351031ddef8b2397921f162ca05ed402cfd
+    name: tailscale-svc-lb
+    type: application
+    urls:
+    - https://github.com/bbetter173/tailscale-svc-lb/releases/download/tailscale-svc-lb-1.0.0/tailscale-svc-lb-1.0.0.tgz
+    version: 1.0.0
+generated: "2022-07-31T09:14:37.12530486Z"
