@@ -4,15 +4,32 @@ on:
   push:
     branches:
       - feature/helm-actions
-
 jobs:
-  build:
+  release:
+    permissions:
+      contents: write
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
-      - name: Create helm charts directory
-        run: |
-          mkdir charts; mv chart charts/tailscsale-svc-lb
-      - uses: J12934/helm-gh-pages-action@master
+      - name: Checkout
+        uses: actions/checkout@v2
         with:
-          access-token: ${{ secrets.ACCESS_TOKEN }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.8.1
+
+      - name: Create expected charts directory layout
+        run: |
+          mkdir charts; mv chart charts/tailscale-svc-lb
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.4.0
+        env:
+          CR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
