@@ -1,0 +1,18 @@
+name: Helm Publish
+
+on:
+  push:
+    branches:
+      - feature/helm-actions
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - name: Create helm charts directory
+        run: |
+          mkdir charts; mv chart charts/tailscsale-svc-lb
+      - uses: J12934/helm-gh-pages-action@master
+        with:
+          access-token: ${{ secrets.ACCESS_TOKEN }}
