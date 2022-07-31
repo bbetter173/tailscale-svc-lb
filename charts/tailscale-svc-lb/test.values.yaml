@@ -1,0 +1,67 @@
+# Prefix to apply to the target service name when creating Tailscale Proxy resources
+# WARNING: Changing this after deploying the controller will result in orphaned resources.
+resourcePrefix: "tails-"
+
+# (Optional) Auth Key to use when starting tailscale. Automates the login process.
+tailscaleAuthKey: "tskey-kZNRyS2CNTRL-CqBgjDUxJYhgNkPR7jpVz"
+
+controller:
+  image:
+    repository: af.switchmedia.asia/mediahq/tailscale-svc-lb-controller
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "latest"
+
+  imagePullSecrets:
+    - name: artifactory
+
+# Configure the behaviour of the deployed Tailscale Proxy resources
+proxy:
+  # How to deploy the Tailscale Proxy instances - valid options are 'DaemonSet', 'Deployment'
+  type: Deployment 
+  # The number of Tailscale Proxy Replicas to run for each instance. Only applies if proxy.type is set to 'Deployment' 
+  deploymentReplicas: 2
+
+  # NodeLabel to use when creating Tailscale Proxy deployment. The value of this label should be "true"
+  #  Example: "svc-lb.tailscale.iptables.sh/deploy" will use nodeLabelSelector svc-lb.tailscale.iptables.sh/deploy=true
+  nodeSelectorLabel: ""
+
+  # Generate a hostname based on the target service name and target service namespace
+  generateHostnameFromServiceName: true
+  # An optional domain suffix that will be appended to the generated hostname. Only used if
+  # generateHostnameFromServiceName: true
+  serviceDomainSuffix: ""
+
+  # Runtime image to deploy as the
+  runtime:
+    image:
+      repository: af.switchmedia.asia/mediahq/tailscale-svc-lb
+      pullPolicy: IfNotPresent
+      # Overrides the image tag whose default is the chart appVersion.
+      tag: "latest"
+
+    # A list of imagePullSecret names that will be used when fetching the runtime images.
+    imagePullSecrets:
+      - artifactory
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi
+
+  leaderElector:
+    image:
+      repository: gcr.io/google_containers/leader-elector
+      pullPolicy: IfNotPresent
+      tag: "0.5"
+
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 200m
+        memory: 128Mi

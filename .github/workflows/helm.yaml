@@ -25,10 +25,6 @@ jobs:
         with:
           version: v3.8.1
 
-      - name: Create expected charts directory layout
-        run: |
-          mkdir charts; mv chart charts/tailscale-svc-lb
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.4.0
         env:
