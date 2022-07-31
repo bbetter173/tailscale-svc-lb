@@ -3,6 +3,23 @@ entries:
   tailscale-svc-lb:
   - apiVersion: v2
     appVersion: 1.0.0
+    created: "2022-07-31T23:35:51.702678541Z"
+    description: klipper-lb but Tailscale
+    digest: f4e8bd47af0530124b02735b57a9025eecba3fa7f950480a5556fb1766a009fa
+    maintainers:
+    - email: ben@e720.io
+      name: Ben
+      url: https://github.com/bbetter173
+    - email: michael@iptables.sh
+      name: clrxbl
+      url: https://github.com/clrxbl
+    name: tailscale-svc-lb
+    type: application
+    urls:
+    - https://github.com/bbetter173/tailscale-svc-lb/releases/download/tailscale-svc-lb-1.0.1/tailscale-svc-lb-1.0.1.tgz
+    version: 1.0.1
+  - apiVersion: v2
+    appVersion: 1.0.0
     created: "2022-07-31T09:14:37.12530056Z"
     description: klipper-lb but Tailscale
     digest: d2a84b451a5c81c89e5d14125b2bc351031ddef8b2397921f162ca05ed402cfd
@@ -11,4 +28,4 @@ entries:
     urls:
     - https://github.com/bbetter173/tailscale-svc-lb/releases/download/tailscale-svc-lb-1.0.0/tailscale-svc-lb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-07-31T09:14:37.12530486Z"
+generated: "2022-07-31T23:35:51.702688142Z"
